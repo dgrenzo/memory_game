@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Container } from 'pixi.js';
+import { Container, Quad } from 'pixi.js';
 
 import { FSM } from "../engine/FSM";
 import { Vector2 } from '../engine/types';
@@ -35,8 +35,11 @@ export class GameController {
     this.m_fsm.registerState(GAME_STATE.SETUP, {
       enter : () => {
         this.m_container = new Container();
+        
+        this.m_container.position.set(400, 325);
+
         this.m_container.interactive = this.m_container.interactiveChildren = false;
-        this.m_container.scale.set(0.75);
+        this.m_container.scale.set(0.55);
         this.m_pixi_app.stage.addChild(this.m_container);
 
         this.initCards(this.m_config.dimensions);
@@ -69,15 +72,14 @@ export class GameController {
 
     if (!this.m_match_first) {
       this.m_match_first = card;
-    } else {
+      card.showCard();
+
+    } else if (!this.m_match_second) {
       this.m_match_second = card;
-    }
-    
-    card.showCard().then( () => {
-      if (this.m_match_first && this.m_match_second) {
+      card.showCard().then( () => {
         this.matchCards(this.m_match_first, this.m_match_second);
-      }
-    })
+      })
+    }
   }
 
   private matchCards = (first : Card, second : Card) => {
@@ -87,11 +89,14 @@ export class GameController {
       if (first.type === second.type) {
         this.m_fsm.setState(GAME_STATE.PLAY);
       } else {
-        setTimeout(() => {
-          first.hideCard();
-          second.hideCard();
-          this.m_fsm.setState(GAME_STATE.PLAY);
-        }, 600);
+        setTimeout( () => {
+          Promise.all([
+            first.hideCard(),
+            second.hideCard()
+          ]).then(() =>{
+            this.m_fsm.setState(GAME_STATE.PLAY);
+          });
+        }, 1000);
       }
     }
   }
@@ -115,7 +120,6 @@ export class GameController {
       this.m_cards.push(card);
 
       card.addToStage(this.m_container)
-
       let pos = this.getCardPosition(index);
       card.setPosition(pos);
       
@@ -128,8 +132,8 @@ export class GameController {
 
 
     return {
-      x : x * 175,
-      y : y * 225,
+      x : (x + 0.5 - this.m_config.dimensions.width / 2) * 175,
+      y : (y + 0.5 - this.m_config.dimensions.height / 2) * 235,
     }
   }
 }
