@@ -61,8 +61,6 @@ export class GameController {
     });
 
     this.m_fsm.registerState(GAME_STATE.MATCHING, {
-      enter : () => {
-      }
     });
 
     this.m_fsm.registerState(GAME_STATE.COMPLETE, {
