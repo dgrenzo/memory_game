@@ -31,7 +31,7 @@ export class GameController {
   private m_match_second : Card;
 
   constructor (private m_pixi_app : PIXI.Application, private m_config : GameConfig) {
-    
+
     this.m_fsm.registerState(GAME_STATE.SETUP, {
       enter : () => {
         this.m_container = new Container();
@@ -65,7 +65,27 @@ export class GameController {
       }
     });
 
+    this.m_fsm.registerState(GAME_STATE.COMPLETE, {
+      enter : () => {
+        this.m_pixi_app.renderer.clearBeforeRender = false;
+
+        _.forEach(this.m_cards, (card, index)  => {
+          setTimeout(card.doCelebration, 300 + index * 150); 
+        })
+
+      },
+      update : () => {
+        _.forEach(this.m_cards, card => {
+          card.update();
+        })
+      }
+    })
+
     this.m_fsm.setState(GAME_STATE.SETUP);
+  }
+
+  public update = (deltaTime : number = 0) => {
+    this.m_fsm.update(deltaTime);
   }
 
   private onCardClicked = (card : Card) => {
@@ -87,7 +107,16 @@ export class GameController {
       this.m_fsm.setState(GAME_STATE.MATCHING);
 
       if (first.type === second.type) {
-        this.m_fsm.setState(GAME_STATE.PLAY);
+        first.setMatched();
+        second.setMatched();
+        
+        if (this.checkComplete()) {
+          this.m_fsm.setState(GAME_STATE.COMPLETE);
+        } else { 
+          
+          this.m_fsm.setState(GAME_STATE.PLAY);
+        }
+
       } else {
         setTimeout( () => {
           Promise.all([
@@ -99,6 +128,14 @@ export class GameController {
         }, 1000);
       }
     }
+  }
+
+  private checkComplete() : boolean {
+    let complete = true;
+    _.forEach(this.m_cards, (card) => {
+      return complete = card.isMatched();
+    });
+    return complete;
   }
 
   private initCards(dimensions : {width : number, height : number}) {

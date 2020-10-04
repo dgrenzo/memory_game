@@ -5,6 +5,7 @@ import { GameController } from "./game/GameController";
 
 let pixi_app : PIXI.Application = new PIXI.Application({
   forceCanvas : true,
+  preserveDrawingBuffer : true,
   backgroundColor : 0xCCCCFF,
   antialias : true,
   width : 800,
@@ -19,8 +20,10 @@ pixi_app.ticker.add(() => {
 AssetManager.LoadAssets().then(() => {
   let controller = new GameController(pixi_app, {
     dimensions : {
-      width : 5,
+      width : 4,
       height : 4,
     }
   });
+  
+  pixi_app.ticker.add(controller.update);
 });
