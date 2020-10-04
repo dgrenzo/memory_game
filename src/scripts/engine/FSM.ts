@@ -7,15 +7,15 @@ export interface IState {
   update?: (deltaTime: number) => void
 }
 
-interface IFSMState extends IState {
-  fsm : FSM,
+interface IFSMState<T> extends IState {
+  fsm : FSM<T>,
 }
 
-export class FSM {
-  private _state : number;
-  private stateObjects = new Map<number, IFSMState>();
+export class FSM<T> {
+  private _state : T;
+  private stateObjects = new Map<T, IFSMState<T>>();
 
-  public registerState = (key : number, stateObject : IState) => {
+  public registerState = (key : T, stateObject : IState) => {
     this.stateObjects.set(key, _.defaults({
       fsm : this,
     }, stateObject));
@@ -28,7 +28,7 @@ export class FSM {
     }
   }
 
-  public setState = (val : number) => {
+  public setState = (val : T) => {
     if (this.stateObjects.get(this._state) && this.stateObjects.get(this._state).exit) {
       this.stateObjects.get(this._state).exit();
     }
@@ -39,7 +39,7 @@ export class FSM {
     }
   }
 
-  get state(): number {
+  get state(): T {
     return this._state;
   }
 }

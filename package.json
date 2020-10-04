@@ -15,7 +15,9 @@
   "author": "David Grenozwks",
   "license": "",
   "devDependencies": {
-    "@tweenjs/tween.js": "^18.5.0",
+    "@types/howler": "^2.1.2",
+    "@types/lodash": "^4.14.149",
+    "@types/tween.js": "^18.5.0",
     "browser-sync": "^2.26.7",
     "browserify": "^16.5.0",
     "browserify-incremental": "^3.1.1",
@@ -41,9 +43,7 @@
     "yargs": "15.1.0"
   },
   "dependencies": {
-    "@types/howler": "^2.1.2",
-    "@types/lodash": "^4.14.149",
-    "@types/tween.js": "^18.5.0",
+    "@tweenjs/tween.js": "^18.5.0",
     "fs": "0.0.1-security",
     "lodash": "^4.17.15"
   },
