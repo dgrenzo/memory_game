@@ -20,7 +20,7 @@ var PIXI = require("pixi.js");
 var AssetManager_1 = require("./game/assets/AssetManager");
 var pixi_app = new PIXI.Application({
     forceCanvas: true,
-    backgroundColor: 0x291f2e,
+    backgroundColor: 0xFFCCFF,
     view: document.getElementById('game_canvas')
 });
 AssetManager_1.AssetManager.LoadAssets().then(function () {
