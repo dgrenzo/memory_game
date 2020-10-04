@@ -19,31 +19,44 @@ var GameController = (function () {
         this.m_pixi_app = m_pixi_app;
         this.m_config = m_config;
         this.m_fsm = new FSM_1.FSM();
+        this.update = function (deltaTime) {
+            if (deltaTime === void 0) { deltaTime = 0; }
+            _this.m_fsm.update(deltaTime);
+        };
         this.onCardClicked = function (card) {
             if (!_this.m_match_first) {
                 _this.m_match_first = card;
+                card.showCard();
             }
-            else {
+            else if (!_this.m_match_second) {
                 _this.m_match_second = card;
-            }
-            card.showCard().then(function () {
-                if (_this.m_match_first && _this.m_match_second) {
+                card.showCard().then(function () {
                     _this.matchCards(_this.m_match_first, _this.m_match_second);
-                }
-            });
+                });
+            }
         };
         this.matchCards = function (first, second) {
             if (first && second) {
                 _this.m_fsm.setState(GAME_STATE.MATCHING);
                 if (first.type === second.type) {
-                    _this.m_fsm.setState(GAME_STATE.PLAY);
+                    first.setMatched();
+                    second.setMatched();
+                    if (_this.checkComplete()) {
+                        _this.m_fsm.setState(GAME_STATE.COMPLETE);
+                    }
+                    else {
+                        _this.m_fsm.setState(GAME_STATE.PLAY);
+                    }
                 }
                 else {
                     setTimeout(function () {
-                        first.hideCard();
-                        second.hideCard();
-                        _this.m_fsm.setState(GAME_STATE.PLAY);
-                    }, 600);
+                        Promise.all([
+                            first.hideCard(),
+                            second.hideCard()
+                        ]).then(function () {
+                            _this.m_fsm.setState(GAME_STATE.PLAY);
+                        });
+                    }, 1000);
                 }
             }
         };
@@ -51,15 +64,16 @@ var GameController = (function () {
             var x = index % _this.m_config.dimensions.width;
             var y = Math.floor(index / _this.m_config.dimensions.width);
             return {
-                x: x * 175,
-                y: y * 225,
+                x: (x + 0.5 - _this.m_config.dimensions.width / 2) * 175,
+                y: (y + 0.5 - _this.m_config.dimensions.height / 2) * 235,
             };
         };
         this.m_fsm.registerState(GAME_STATE.SETUP, {
             enter: function () {
                 _this.m_container = new pixi_js_1.Container();
+                _this.m_container.position.set(400, 325);
                 _this.m_container.interactive = _this.m_container.interactiveChildren = false;
-                _this.m_container.scale.set(0.75);
+                _this.m_container.scale.set(0.55);
                 _this.m_pixi_app.stage.addChild(_this.m_container);
                 _this.initCards(_this.m_config.dimensions);
                 _this.m_fsm.setState(GAME_STATE.PLAY);
@@ -75,12 +89,29 @@ var GameController = (function () {
                 _this.m_container.interactive = _this.m_container.interactiveChildren = false;
             }
         });
-        this.m_fsm.registerState(GAME_STATE.MATCHING, {
+        this.m_fsm.registerState(GAME_STATE.MATCHING, {});
+        this.m_fsm.registerState(GAME_STATE.COMPLETE, {
             enter: function () {
+                _this.m_pixi_app.renderer.clearBeforeRender = false;
+                _.forEach(_this.m_cards, function (card, index) {
+                    setTimeout(card.doCelebration, 300 + index * 150);
+                });
+            },
+            update: function () {
+                _.forEach(_this.m_cards, function (card) {
+                    card.update();
+                });
             }
         });
         this.m_fsm.setState(GAME_STATE.SETUP);
     }
+    GameController.prototype.checkComplete = function () {
+        var complete = true;
+        _.forEach(this.m_cards, function (card) {
+            return complete = card.isMatched();
+        });
+        return complete;
+    };
     GameController.prototype.initCards = function (dimensions) {
         var _this = this;
         var total_card_count = dimensions.width * dimensions.height;
