@@ -59,7 +59,7 @@ var MainMenu = (function (_super) {
             var btn = new GameSelectButton_1.GameSelectButton(label);
             btn.position.set(400, 300 + index * 90);
             _this.addChild(btn);
-            btn.on('click', function () {
+            btn.on('pointertap', function () {
                 onSelectOption(option);
             });
         });

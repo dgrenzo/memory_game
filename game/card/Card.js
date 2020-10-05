@@ -93,7 +93,7 @@ var Card = (function () {
         this.m_card_container.addChild(this.m_card_front = AssetManager_1.AssetManager.GetCard(type));
         this.m_card_back.anchor.set(0.5);
         this.m_card_front.anchor.set(0.5);
-        this.m_root.on("click", this.clicked);
+        this.m_root.on("pointertap", this.clicked);
         this.m_fsm.registerState(CARD_STATE.FACEDOWN, {
             enter: function () {
                 _this.m_root.interactive = _this.m_root.buttonMode = true;
