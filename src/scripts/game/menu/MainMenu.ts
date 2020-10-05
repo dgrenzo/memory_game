@@ -54,7 +54,7 @@ export class MainMenu extends PIXI.Sprite {
       btn.position.set (400, 300 + index * 90);
       this.addChild(btn);
 
-      btn.on('click', () => {
+      btn.on('pointertap', () => {
         onSelectOption(option)
       });
 

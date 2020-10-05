@@ -41,7 +41,7 @@ export class Card {
     this.m_card_back.anchor.set(0.5);
     this.m_card_front.anchor.set(0.5);
 
-    this.m_root.on("click", this.clicked);
+    this.m_root.on("pointertap", this.clicked);
 
     this.m_fsm.registerState(CARD_STATE.FACEDOWN, {
       enter : () => {

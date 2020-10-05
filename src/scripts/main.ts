@@ -49,5 +49,5 @@ AssetManager.LoadAssets().then(() => {
 
   back_button = AssetManager.GetSprite(AssetNames.BACK_BUTTON);
   back_button.interactive = back_button.buttonMode = true;
-  back_button.on('click', onBack);
+  back_button.on('pointertap', onBack);
 });
